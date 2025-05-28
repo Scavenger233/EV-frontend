@@ -1,5 +1,6 @@
 
 import React, { useState } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import { 
   LayoutDashboard, 
   Package, 
@@ -26,6 +27,7 @@ interface SidebarProps {
 const Sidebar = ({ className }: SidebarProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>(['client-facing', 'sales']);
+  const location = useLocation();
 
   const toggleSection = (section: string) => {
     setExpandedSections(prev => 
@@ -101,15 +103,22 @@ const Sidebar = ({ className }: SidebarProps) => {
       <nav className="p-2 space-y-1">
         {menuItems.map((item) => {
           if (item.type === 'single') {
+            const isActive = location.pathname === item.href;
             return (
-              <a
+              <Link
                 key={item.id}
-                href={item.href}
-                className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors group"
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group",
+                  isActive ? "bg-blue-600 text-white" : "hover:bg-gray-800"
+                )}
               >
-                <item.icon size={20} className="text-gray-400 group-hover:text-blue-400" />
+                <item.icon size={20} className={cn(
+                  "transition-colors",
+                  isActive ? "text-white" : "text-gray-400 group-hover:text-blue-400"
+                )} />
                 {!isCollapsed && <span className="font-medium">{item.label}</span>}
-              </a>
+              </Link>
             );
           }
 
@@ -136,16 +145,28 @@ const Sidebar = ({ className }: SidebarProps) => {
               
               {!isCollapsed && isExpanded && item.items && (
                 <div className="ml-4 space-y-1">
-                  {item.items.map((subItem) => (
-                    <a
-                      key={subItem.id}
-                      href={subItem.href}
-                      className="flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-gray-800 transition-colors group"
-                    >
-                      <subItem.icon size={16} className="text-gray-400 group-hover:text-blue-400" />
-                      <span className="text-sm text-gray-300 group-hover:text-white">{subItem.label}</span>
-                    </a>
-                  ))}
+                  {item.items.map((subItem) => {
+                    const isActive = location.pathname === subItem.href;
+                    return (
+                      <Link
+                        key={subItem.id}
+                        to={subItem.href}
+                        className={cn(
+                          "flex items-center gap-3 px-3 py-2 rounded-lg transition-colors group",
+                          isActive ? "bg-blue-600 text-white" : "hover:bg-gray-800"
+                        )}
+                      >
+                        <subItem.icon size={16} className={cn(
+                          "transition-colors",
+                          isActive ? "text-white" : "text-gray-400 group-hover:text-blue-400"
+                        )} />
+                        <span className={cn(
+                          "text-sm transition-colors",
+                          isActive ? "text-white" : "text-gray-300 group-hover:text-white"
+                        )}>{subItem.label}</span>
+                      </Link>
+                    );
+                  })}
                 </div>
               )}
             </div>
