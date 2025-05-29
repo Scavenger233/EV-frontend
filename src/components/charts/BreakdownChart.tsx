@@ -1,58 +1,28 @@
 
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
-import { useSales } from '@/hooks/useApi';
-import { SalesData } from '@/types/api';
 
 interface BreakdownChartProps {
   isDashboard?: boolean;
 }
 
 const BreakdownChart = ({ isDashboard = false }: BreakdownChartProps) => {
-  const { data, loading, error } = useSales();
+  // Mock data - replace with actual API call
+  const data = [
+    { name: 'Clothing', value: 45000, color: '#8884d8' },
+    { name: 'Shoes', value: 32000, color: '#82ca9d' },
+    { name: 'Accessories', value: 28000, color: '#ffc658' },
+    { name: 'Miscellaneous', value: 18000, color: '#ff7300' }
+  ];
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-gray-500">Loading breakdown data...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-red-500">Error loading data: {error.message}</p>
-      </div>
-    );
-  }
-
-  if (!data) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-gray-500">No data available</p>
-      </div>
-    );
-  }
-
-  // Type assertion to ensure data is SalesData
-  const salesData = data as SalesData;
-
-  // Convert salesByCategory object to array format for the chart
-  const chartData = Object.entries(salesData.salesByCategory).map(([category, sales], i) => ({
-    name: category,
-    value: sales,
-    color: ['#8884d8', '#82ca9d', '#ffc658', '#ff7300'][i % 4]
-  }));
-
-  const total = chartData.reduce((sum, item) => sum + item.value, 0);
+  const total = data.reduce((sum, item) => sum + item.value, 0);
 
   return (
     <div className={`relative ${isDashboard ? 'h-96' : 'h-full'} w-full`}>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
-            data={chartData}
+            data={data}
             cx="50%"
             cy="50%"
             innerRadius={isDashboard ? 60 : 80}
@@ -60,7 +30,7 @@ const BreakdownChart = ({ isDashboard = false }: BreakdownChartProps) => {
             paddingAngle={5}
             dataKey="value"
           >
-            {chartData.map((entry, index) => (
+            {data.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
           </Pie>

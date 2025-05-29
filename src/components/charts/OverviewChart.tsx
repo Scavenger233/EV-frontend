@@ -1,112 +1,86 @@
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import { useSales } from '@/hooks/useApi';
-import { SalesData } from '@/types/api';
 
 interface OverviewChartProps {
-  view: 'sales' | 'units';
+  isDashboard?: boolean;
+  view: string;
 }
 
-const OverviewChart = ({ view }: OverviewChartProps) => {
-  const { data, loading, error } = useSales();
+const OverviewChart = ({ isDashboard = false, view }: OverviewChartProps) => {
+  // Mock cumulative data
+  const data = [
+    { month: 'Jan', totalSales: 12000, totalUnits: 150 },
+    { month: 'Feb', totalSales: 25000, totalUnits: 320 },
+    { month: 'Mar', totalSales: 38000, totalUnits: 480 },
+    { month: 'Apr', totalSales: 52000, totalUnits: 650 },
+    { month: 'May', totalSales: 67000, totalUnits: 820 },
+    { month: 'Jun', totalSales: 83000, totalUnits: 1000 },
+    { month: 'Jul', totalSales: 98000, totalUnits: 1180 },
+    { month: 'Aug', totalSales: 115000, totalUnits: 1350 },
+    { month: 'Sep', totalSales: 132000, totalUnits: 1520 },
+    { month: 'Oct', totalSales: 148000, totalUnits: 1700 },
+    { month: 'Nov', totalSales: 165000, totalUnits: 1880 },
+    { month: 'Dec', totalSales: 183000, totalUnits: 2100 }
+  ];
 
-  const chartData = useMemo(() => {
-    if (!data) return [];
-
-    // Type assertion to ensure data is SalesData
-    const salesData = data as SalesData;
-
-    // Convert monthly data to cumulative data
-    const cumulativeData: any[] = [];
-    let totalSales = 0;
-    let totalUnits = 0;
-
-    salesData.monthlyData.forEach((monthData) => {
-      totalSales += monthData.totalSales;
-      totalUnits += monthData.totalUnits;
-      
-      cumulativeData.push({
-        month: monthData.month,
-        totalSales,
-        totalUnits,
-      });
-    });
-
-    return cumulativeData;
-  }, [data]);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-gray-500">Loading overview data...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-red-500">Error loading data: {error.message}</p>
-      </div>
-    );
-  }
-
-  if (!chartData.length) {
-    return (
-      <div className="flex items-center justify-center h-full">
-        <p className="text-gray-500">No data available</p>
-      </div>
-    );
-  }
+  const dataKey = view === 'sales' ? 'totalSales' : 'totalUnits';
+  const yAxisLabel = view === 'sales' ? 'Total Revenue ($)' : 'Total Units';
 
   return (
-    <ResponsiveContainer width="100%" height="100%">
-      <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-        <XAxis 
-          dataKey="month" 
-          stroke="#6b7280"
-          tick={{ fontSize: 12 }}
-        />
-        <YAxis 
-          stroke="#6b7280"
-          tick={{ fontSize: 12 }}
-        />
-        <Tooltip 
-          formatter={(value, name) => [
-            name === 'totalSales' ? `$${value.toLocaleString()}` : value.toLocaleString(),
-            name === 'totalSales' ? 'Total Sales' : 'Total Units'
-          ]}
-          labelStyle={{ color: '#374151' }}
-          contentStyle={{ 
-            backgroundColor: 'white', 
-            border: '1px solid #d1d5db',
-            borderRadius: '0.375rem'
+    <div className="w-full h-full">
+      <ResponsiveContainer width="100%" height="100%">
+        <LineChart
+          data={data}
+          margin={{
+            top: 20,
+            right: 50,
+            left: 70,
+            bottom: 50,
           }}
-        />
-        <Legend />
-        {view === 'sales' ? (
+        >
+          <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+          <XAxis 
+            dataKey="month" 
+            stroke="#6b7280"
+            tick={{ fontSize: 12 }}
+          />
+          <YAxis 
+            stroke="#6b7280"
+            tick={{ fontSize: 12 }}
+            label={{ 
+              value: isDashboard ? '' : yAxisLabel, 
+              angle: -90, 
+              position: 'insideLeft',
+              style: { textAnchor: 'middle' }
+            }}
+          />
+          <Tooltip 
+            formatter={(value) => [
+              view === 'sales' ? `$${value.toLocaleString()}` : value.toLocaleString(),
+              view === 'sales' ? 'Revenue' : 'Units'
+            ]}
+            labelStyle={{ color: '#374151' }}
+            contentStyle={{ 
+              backgroundColor: 'white', 
+              border: '1px solid #d1d5db',
+              borderRadius: '0.375rem'
+            }}
+          />
+          {!isDashboard && (
+            <Legend />
+          )}
           <Line 
             type="monotone" 
-            dataKey="totalSales" 
+            dataKey={dataKey} 
             stroke="#3b82f6" 
             strokeWidth={2}
             dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
-            name="Total Sales"
+            activeDot={{ r: 6, stroke: '#3b82f6', strokeWidth: 2 }}
           />
-        ) : (
-          <Line 
-            type="monotone" 
-            dataKey="totalUnits" 
-            stroke="#10b981" 
-            strokeWidth={2}
-            dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
-            name="Total Units"
-          />
-        )}
-      </LineChart>
-    </ResponsiveContainer>
+        </LineChart>
+      </ResponsiveContainer>
+    </div>
   );
 };
 

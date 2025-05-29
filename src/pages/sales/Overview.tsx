@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label';
 import OverviewChart from '@/components/charts/OverviewChart';
 
 const Overview = () => {
-  const [view, setView] = useState<'sales' | 'units'>('units');
+  const [view, setView] = useState("units");
 
   return (
     <div className="min-h-screen flex w-full bg-gray-50">
@@ -25,7 +25,7 @@ const Overview = () => {
               <Label htmlFor="view-select" className="text-sm font-medium text-gray-700 mb-2 block">
                 View
               </Label>
-              <Select value={view} onValueChange={(value: 'sales' | 'units') => setView(value)}>
+              <Select value={view} onValueChange={setView}>
                 <SelectTrigger className="w-48">
                   <SelectValue placeholder="Select view" />
                 </SelectTrigger>
