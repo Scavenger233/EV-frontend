@@ -1,19 +1,45 @@
 
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { useSales } from '@/hooks/useApi';
 
 interface BreakdownChartProps {
   isDashboard?: boolean;
 }
 
 const BreakdownChart = ({ isDashboard = false }: BreakdownChartProps) => {
-  // Mock data - replace with actual API call
-  const data = [
-    { name: 'Clothing', value: 45000, color: '#8884d8' },
-    { name: 'Shoes', value: 32000, color: '#82ca9d' },
-    { name: 'Accessories', value: 28000, color: '#ffc658' },
-    { name: 'Miscellaneous', value: 18000, color: '#ff7300' }
-  ];
+  const { data: salesData, loading, error } = useSales();
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-500">Loading breakdown data...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-red-500">Error loading data: {error.message}</p>
+      </div>
+    );
+  }
+
+  if (!salesData) {
+    return (
+      <div className="flex items-center justify-center h-full">
+        <p className="text-gray-500">No data available</p>
+      </div>
+    );
+  }
+
+  // Convert salesByCategory object to array format for the chart
+  const data = Object.entries(salesData.salesByCategory).map(([category, sales], i) => ({
+    name: category,
+    value: sales,
+    color: ['#8884d8', '#82ca9d', '#ffc658', '#ff7300'][i % 4]
+  }));
 
   const total = data.reduce((sum, item) => sum + item.value, 0);
 
