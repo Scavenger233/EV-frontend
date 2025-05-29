@@ -1,40 +1,29 @@
 
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import Header from '@/components/Header';
 import Sidebar from '@/components/Sidebar';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Button } from '@/components/ui/button';
 import { CalendarIcon } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, eachDayOfInterval } from 'date-fns';
 import { cn } from '@/lib/utils';
-
-const DailyChart = ({ startDate, endDate }: { startDate: Date | undefined, endDate: Date | undefined }) => {
-  return (
-    <div className="flex items-center justify-center h-96 bg-gray-100 rounded-lg mt-4">
-      <div className="text-center">
-        <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-          <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 12l3-3 3 3 4-4M8 21l4-4 4 4M3 4h18M4 4h16v12a1 1 0 01-1 1H5a1 1 0 01-1-1V4z" />
-          </svg>
-        </div>
-        <h3 className="text-lg font-semibold text-gray-900 mb-2">Daily Sales Chart</h3>
-        <p className="text-gray-600 mb-4">
-          Line chart showing daily sales data between selected dates.
-        </p>
-        <div className="bg-green-50 rounded-lg p-4 max-w-md mx-auto">
-          <p className="text-sm text-green-800">
-            Date Range: {startDate ? format(startDate, "MMM dd, yyyy") : "Not selected"} - {endDate ? format(endDate, "MMM dd, yyyy") : "Not selected"}
-          </p>
-        </div>
-      </div>
-    </div>
-  );
-};
+import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
 const Daily = () => {
   const [startDate, setStartDate] = useState<Date | undefined>(new Date("2021-02-01"));
   const [endDate, setEndDate] = useState<Date | undefined>(new Date("2021-03-01"));
+
+  const chartData = useMemo(() => {
+    if (!startDate || !endDate) return [];
+    
+    const days = eachDayOfInterval({ start: startDate, end: endDate });
+    return days.map((day, index) => ({
+      date: format(day, 'MM-dd'),
+      totalSales: Math.floor(Math.random() * 5000) + 2000,
+      totalUnits: Math.floor(Math.random() * 100) + 20
+    }));
+  }, [startDate, endDate]);
 
   return (
     <div className="min-h-screen flex w-full bg-gray-50">
@@ -97,7 +86,68 @@ const Daily = () => {
               </Popover>
             </div>
 
-            <DailyChart startDate={startDate} endDate={endDate} />
+            <div className="h-96">
+              <ResponsiveContainer width="100%" height="100%">
+                <LineChart
+                  data={chartData}
+                  margin={{
+                    top: 50,
+                    right: 50,
+                    left: 60,
+                    bottom: 70,
+                  }}
+                >
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
+                  <XAxis 
+                    dataKey="date"
+                    stroke="#6b7280"
+                    tick={{ fontSize: 12 }}
+                    angle={90}
+                    textAnchor="start"
+                    height={60}
+                  />
+                  <YAxis 
+                    stroke="#6b7280"
+                    tick={{ fontSize: 12 }}
+                    label={{ 
+                      value: 'Total', 
+                      angle: -90, 
+                      position: 'insideLeft',
+                      style: { textAnchor: 'middle' }
+                    }}
+                  />
+                  <Tooltip 
+                    formatter={(value, name) => [
+                      name === 'totalSales' ? `$${value.toLocaleString()}` : value.toLocaleString(),
+                      name === 'totalSales' ? 'Total Sales' : 'Total Units'
+                    ]}
+                    labelStyle={{ color: '#374151' }}
+                    contentStyle={{ 
+                      backgroundColor: 'white', 
+                      border: '1px solid #d1d5db',
+                      borderRadius: '0.375rem'
+                    }}
+                  />
+                  <Legend />
+                  <Line 
+                    type="monotone" 
+                    dataKey="totalSales" 
+                    stroke="#3b82f6" 
+                    strokeWidth={2}
+                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                    name="Total Sales"
+                  />
+                  <Line 
+                    type="monotone" 
+                    dataKey="totalUnits" 
+                    stroke="#10b981" 
+                    strokeWidth={2}
+                    dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
+                    name="Total Units"
+                  />
+                </LineChart>
+              </ResponsiveContainer>
+            </div>
           </div>
         </main>
       </div>
