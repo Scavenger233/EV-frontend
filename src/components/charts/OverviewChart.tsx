@@ -2,20 +2,16 @@
 import React, { useMemo } from 'react';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { useSales } from '@/hooks/useApi';
-import { SalesData } from '@/types/api';
 
 interface OverviewChartProps {
   view: 'sales' | 'units';
 }
 
 const OverviewChart = ({ view }: OverviewChartProps) => {
-  const { data, loading, error } = useSales();
+  const { data: salesData, loading, error } = useSales();
 
   const chartData = useMemo(() => {
-    if (!data) return [];
-
-    // Type assertion to ensure data is SalesData
-    const salesData = data as SalesData;
+    if (!salesData) return [];
 
     // Convert monthly data to cumulative data
     const cumulativeData: any[] = [];
@@ -34,7 +30,7 @@ const OverviewChart = ({ view }: OverviewChartProps) => {
     });
 
     return cumulativeData;
-  }, [data]);
+  }, [salesData]);
 
   if (loading) {
     return (

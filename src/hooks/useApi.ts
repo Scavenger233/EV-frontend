@@ -1,7 +1,6 @@
 
 import { useState, useEffect } from 'react';
 import { ApiError } from '@/types/api';
-import { userApi, salesApi, productApi, transactionApi, geographyApi, performanceApi, adminApi } from '@/services/api';
 
 interface UseApiState<T> {
   data: T | null;
@@ -56,29 +55,36 @@ export function useApi<T>(
 
 // Specific hooks for common API calls
 export function useUser(userId: string) {
+  const { userApi } = require('@/services/api');
   return useApi(() => userApi.getUser(userId), [userId]);
 }
 
 export function useSales() {
+  const { salesApi } = require('@/services/api');
   return useApi(() => salesApi.getSales(), []);
 }
 
 export function useProducts(page = 1, pageSize = 20) {
+  const { productApi } = require('@/services/api');
   return useApi(() => productApi.getProducts(page, pageSize), [page, pageSize]);
 }
 
 export function useTransactions(page = 1, pageSize = 20, search?: string) {
+  const { transactionApi } = require('@/services/api');
   return useApi(() => transactionApi.getTransactions(page, pageSize, search), [page, pageSize, search]);
 }
 
 export function useGeography() {
+  const { geographyApi } = require('@/services/api');
   return useApi(() => geographyApi.getGeography(), []);
 }
 
 export function usePerformance(userId: string) {
+  const { performanceApi } = require('@/services/api');
   return useApi(() => performanceApi.getUserPerformance(userId), [userId]);
 }
 
 export function useAdmins() {
+  const { adminApi } = require('@/services/api');
   return useApi(() => adminApi.getAdmins(), []);
 }
