@@ -32,7 +32,7 @@ export interface Transaction {
   userId: string;
   amount: number;
   productIds: string[];
-  createdAt: string; // ISO Date
+  createdAt: string;
 }
 
 // For paginated transaction responses
