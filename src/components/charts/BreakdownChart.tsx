@@ -1,28 +1,44 @@
-
-import React from 'react';
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import React, { useMemo } from "react";
+import {
+  PieChart,
+  Pie,
+  Cell,
+  ResponsiveContainer,
+  Legend,
+  Tooltip,
+} from "recharts";
 
 interface BreakdownChartProps {
+  data: { [key: string]: number };
   isDashboard?: boolean;
 }
 
-const BreakdownChart = ({ isDashboard = false }: BreakdownChartProps) => {
-  // Mock data - replace with actual API call
-  const data = [
-    { name: 'Clothing', value: 45000, color: '#8884d8' },
-    { name: 'Shoes', value: 32000, color: '#82ca9d' },
-    { name: 'Accessories', value: 28000, color: '#ffc658' },
-    { name: 'Miscellaneous', value: 18000, color: '#ff7300' }
-  ];
+const COLORS = [
+  "#8884d8",
+  "#82ca9d",
+  "#ffc658",
+  "#ff7300",
+  "#a78bfa",
+  "#34d399",
+];
 
-  const total = data.reduce((sum, item) => sum + item.value, 0);
+const BreakdownChart = ({ data, isDashboard = false }: BreakdownChartProps) => {
+  const chartData = useMemo(() => {
+    return Object.entries(data).map(([key, value], index) => ({
+      name: key.charAt(0).toUpperCase() + key.slice(1),
+      value,
+      color: COLORS[index % COLORS.length],
+    }));
+  }, [data]);
+
+  const total = chartData.reduce((sum, item) => sum + item.value, 0);
 
   return (
-    <div className={`relative ${isDashboard ? 'h-96' : 'h-full'} w-full`}>
+    <div className={`relative ${isDashboard ? "h-96" : "h-full"} w-full`}>
       <ResponsiveContainer width="100%" height="100%">
         <PieChart>
           <Pie
-            data={data}
+            data={chartData}
             cx="50%"
             cy="50%"
             innerRadius={isDashboard ? 60 : 80}
@@ -30,24 +46,22 @@ const BreakdownChart = ({ isDashboard = false }: BreakdownChartProps) => {
             paddingAngle={5}
             dataKey="value"
           >
-            {data.map((entry, index) => (
+            {chartData.map((entry, index) => (
               <Cell key={`cell-${index}`} fill={entry.color} />
             ))}
           </Pie>
-          <Tooltip 
-            formatter={(value) => [`$${value.toLocaleString()}`, 'Sales']}
+          <Tooltip
+            formatter={(value) => [
+              `$${Number(value).toLocaleString()}`,
+              "Sales",
+            ]}
           />
           {!isDashboard && (
-            <Legend 
-              verticalAlign="bottom" 
-              height={36}
-              iconType="circle"
-            />
+            <Legend verticalAlign="bottom" height={36} iconType="circle" />
           )}
         </PieChart>
       </ResponsiveContainer>
-      
-      {/* Center text */}
+
       <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
         <div className="text-center">
           <p className="text-lg font-semibold text-gray-600">
