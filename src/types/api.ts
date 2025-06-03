@@ -17,20 +17,20 @@ export interface Product {
 
 // ========== Customer ==========
 export interface Customer {
-  id: string;
+  id: number;
   name: string;
   email: string;
   city: string;
   country: string;
   phoneNumber: string;
-  role: 'user' | 'admin';
+  role: string;
 }
 
 // ========== Transaction ==========
 export interface Transaction {
   id: string;
   userId: string;
-  amount: number;
+  cost: number;
   productIds: string[];
   createdAt: string;
 }
@@ -74,4 +74,11 @@ export interface DashboardStats {
   yearlySalesTotal: number;
   yearlyTotalSoldUnits: number;
   monthlyData: MonthlySales[];
+}
+
+// ========== Affiliate ==========
+export interface AffiliateStat {
+  id: string;
+  userId: string;
+  affiliateSales: string[]; // List of Transaction ID
 }
