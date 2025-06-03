@@ -1,29 +1,52 @@
-
-import React, { useState, useMemo } from 'react';
-import Header from '@/components/Header';
-import Sidebar from '@/components/Sidebar';
-import { Calendar } from '@/components/ui/calendar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Button } from '@/components/ui/button';
-import { CalendarIcon } from 'lucide-react';
-import { format, eachDayOfInterval } from 'date-fns';
-import { cn } from '@/lib/utils';
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import React, { useState, useMemo } from "react";
+import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+import { Calendar } from "@/components/ui/calendar";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
+import { Button } from "@/components/ui/button";
+import { CalendarIcon } from "lucide-react";
+import { format, eachDayOfInterval } from "date-fns";
+import { cn } from "@/lib/utils";
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts";
+import { useDailySales } from "@/hooks/useDailySales";
 
 const Daily = () => {
-  const [startDate, setStartDate] = useState<Date | undefined>(new Date("2021-02-01"));
-  const [endDate, setEndDate] = useState<Date | undefined>(new Date("2021-03-01"));
+  const [startDate, setStartDate] = useState<Date | undefined>(
+    new Date("2021-02-01")
+  );
+  const [endDate, setEndDate] = useState<Date | undefined>(
+    new Date("2021-03-01")
+  );
+
+  const { data: dailySales, loading } = useDailySales();
 
   const chartData = useMemo(() => {
     if (!startDate || !endDate) return [];
-    
-    const days = eachDayOfInterval({ start: startDate, end: endDate });
-    return days.map((day, index) => ({
-      date: format(day, 'MM-dd'),
-      totalSales: Math.floor(Math.random() * 5000) + 2000,
-      totalUnits: Math.floor(Math.random() * 100) + 20
-    }));
-  }, [startDate, endDate]);
+
+    return dailySales
+      .filter((item) => {
+        const d = new Date(item.date);
+        return d >= startDate && d <= endDate;
+      })
+      .map((item) => ({
+        ...item,
+        date: format(new Date(item.date), "MM-dd"),
+      }));
+  }, [dailySales, startDate, endDate]);
+  console.log("log:", chartData);
 
   return (
     <div className="min-h-screen flex w-full bg-gray-50">
@@ -32,11 +55,16 @@ const Daily = () => {
         <Header />
         <main className="flex-1 p-6">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">DAILY SALES</h1>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              DAILY SALES
+            </h1>
             <p className="text-gray-600">Chart of daily sales</p>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-sm border p-6" style={{ height: '75vh' }}>
+
+          <div
+            className="bg-white rounded-lg shadow-sm border p-6"
+            style={{ height: "75vh" }}
+          >
             <div className="flex justify-end gap-4 mb-6">
               <Popover>
                 <PopoverTrigger asChild>
@@ -80,7 +108,7 @@ const Daily = () => {
                     selected={endDate}
                     onSelect={setEndDate}
                     initialFocus
-                    disabled={(date) => startDate ? date < startDate : false}
+                    disabled={(date) => (startDate ? date < startDate : false)}
                   />
                 </PopoverContent>
               </Popover>
@@ -98,7 +126,7 @@ const Daily = () => {
                   }}
                 >
                   <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" />
-                  <XAxis 
+                  <XAxis
                     dataKey="date"
                     stroke="#6b7280"
                     tick={{ fontSize: 12 }}
@@ -106,43 +134,45 @@ const Daily = () => {
                     textAnchor="start"
                     height={60}
                   />
-                  <YAxis 
+                  <YAxis
                     stroke="#6b7280"
                     tick={{ fontSize: 12 }}
-                    label={{ 
-                      value: 'Total', 
-                      angle: -90, 
-                      position: 'insideLeft',
-                      style: { textAnchor: 'middle' }
+                    label={{
+                      value: "Total",
+                      angle: -90,
+                      position: "insideLeft",
+                      style: { textAnchor: "middle" },
                     }}
                   />
-                  <Tooltip 
+                  <Tooltip
                     formatter={(value, name) => [
-                      name === 'totalSales' ? `$${value.toLocaleString()}` : value.toLocaleString(),
-                      name === 'totalSales' ? 'Total Sales' : 'Total Units'
+                      name === "totalSales"
+                        ? `$${value.toLocaleString()}`
+                        : value.toLocaleString(),
+                      name === "totalSales" ? "Total Sales" : "Total Units",
                     ]}
-                    labelStyle={{ color: '#374151' }}
-                    contentStyle={{ 
-                      backgroundColor: 'white', 
-                      border: '1px solid #d1d5db',
-                      borderRadius: '0.375rem'
+                    labelStyle={{ color: "#374151" }}
+                    contentStyle={{
+                      backgroundColor: "white",
+                      border: "1px solid #d1d5db",
+                      borderRadius: "0.375rem",
                     }}
                   />
                   <Legend />
-                  <Line 
-                    type="monotone" 
-                    dataKey="totalSales" 
-                    stroke="#3b82f6" 
+                  <Line
+                    type="monotone"
+                    dataKey="totalSales"
+                    stroke="#3b82f6"
                     strokeWidth={2}
-                    dot={{ fill: '#3b82f6', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: "#3b82f6", strokeWidth: 2, r: 4 }}
                     name="Total Sales"
                   />
-                  <Line 
-                    type="monotone" 
-                    dataKey="totalUnits" 
-                    stroke="#10b981" 
+                  <Line
+                    type="monotone"
+                    dataKey="totalUnits"
+                    stroke="#10b981"
                     strokeWidth={2}
-                    dot={{ fill: '#10b981', strokeWidth: 2, r: 4 }}
+                    dot={{ fill: "#10b981", strokeWidth: 2, r: 4 }}
                     name="Total Units"
                   />
                 </LineChart>
