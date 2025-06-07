@@ -1,13 +1,17 @@
-
-import React, { useState } from 'react';
-import Header from '@/components/Header';
-import Sidebar from '@/components/Sidebar';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Label } from '@/components/ui/label';
-import OverviewChart from '@/components/charts/OverviewChart';
+import React, { useState } from "react";
+import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+import OverviewChart from "@/components/charts/OverviewChart";
+import { Button, Dropdown } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.min.css";
 
 const Overview = () => {
-  const [view, setView] = useState("units");
+  const [view, setView] = useState("sales"); // Default view is sales
+
+  // Modify this function to accept a string (the view value)
+  const handleToggleView = (view: string) => {
+    setView(view); // Set the view to sales or units
+  };
 
   return (
     <div className="min-h-screen flex w-full bg-gray-50">
@@ -16,28 +20,34 @@ const Overview = () => {
         <Header />
         <main className="flex-1 p-6">
           <div className="mb-8">
-            <h1 className="text-3xl font-bold text-gray-900 mb-2">OVERVIEW</h1>
-            <p className="text-gray-600">Overview of general revenue and profit</p>
+            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+              Overview of General Revenue and Profit
+            </h1>
+            <p className="text-gray-600">View your overall sales and units</p>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-sm border p-6" style={{ height: '75vh' }}>
-            <div className="mt-4 mb-6">
-              <Label htmlFor="view-select" className="text-sm font-medium text-gray-700 mb-2 block">
-                View
-              </Label>
-              <Select value={view} onValueChange={setView}>
-                <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Select view" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="sales">Sales</SelectItem>
-                  <SelectItem value="units">Units</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div className="h-96">
-              <OverviewChart view={view} />
-            </div>
+
+          <div className="flex justify-between mb-6">
+            <Dropdown>
+              <Dropdown.Toggle variant="outline-secondary">
+                {view === "sales" ? "Sales" : "Units"}
+              </Dropdown.Toggle>
+              <Dropdown.Menu>
+                {/* Update the onClick event to pass a string directly */}
+                <Dropdown.Item onClick={() => handleToggleView("sales")}>
+                  Sales
+                </Dropdown.Item>
+                <Dropdown.Item onClick={() => handleToggleView("units")}>
+                  Units
+                </Dropdown.Item>
+              </Dropdown.Menu>
+            </Dropdown>
+          </div>
+
+          <div
+            className="bg-white rounded-lg shadow-sm border p-6"
+            style={{ height: "75vh" }}
+          >
+            <OverviewChart view={view} />
           </div>
         </main>
       </div>
