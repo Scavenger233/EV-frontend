@@ -14,5 +14,5 @@ export const useMonthlySales = () => {
       .finally(() => setLoading(false));
   }, []);
 
-  return { data, loading }; 
+  return { data, loading, error}; 
 };
