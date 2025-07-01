@@ -44,6 +44,12 @@ export interface PaginatedTransactions {
 // ========== Geography ==========
 export type GeographyData = Record<string, number>; // e.g., { "US": 120, "IE": 30 }
 
+export interface CountryGeography {
+  countryCode: string;
+  count: number;
+}
+
+
 // ========== Admin ==========
 export interface AdminUser {
   id: string;

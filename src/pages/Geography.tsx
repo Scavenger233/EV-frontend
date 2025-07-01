@@ -1,9 +1,42 @@
+import React from "react";
+import Header from "@/components/Header";
+import Sidebar from "@/components/Sidebar";
+import { ResponsiveChoropleth } from "@nivo/geo";
+import { geoData } from "@/lib/geoData";
+import { useGeographyData } from "@/hooks/useGeography";
 
-import React from 'react';
-import Header from '@/components/Header';
-import Sidebar from '@/components/Sidebar';
+const countryCodeMap: Record<string, string> = {
+  US: "USA",
+  CN: "CHN",
+  IN: "IND",
+  JP: "JPN",
+  FR: "FRA",
+  DE: "DEU",
+  BR: "BRA",
+  NG: "NGA",
+  RU: "RUS",
+  IE: "IRL",
+  ID: "IDN",
+};
 
 const Geography = () => {
+  const { data, loading } = useGeographyData();
+
+  const chartData = data.map((item) => ({
+    id: countryCodeMap[item.countryCode] || item.countryCode,
+    value: item.count,
+  }));
+
+  console.log("🌍 geography data from hook:", data);
+  console.log(
+    "🌐 geoData country ids sample:",
+    geoData.features.slice(0, 5).map((f) => f.id)
+  );
+  console.log(
+    "📌 chartData ids:",
+    chartData.map((d) => d.id)
+  );
+
   return (
     <div className="min-h-screen flex w-full bg-gray-50">
       <Sidebar />
@@ -14,52 +47,45 @@ const Geography = () => {
             <h1 className="text-3xl font-bold text-gray-900 mb-2">GEOGRAPHY</h1>
             <p className="text-gray-600">Find where your users are located.</p>
           </div>
-          
-          <div className="bg-white rounded-lg shadow-sm border p-8">
-            <div className="flex items-center justify-center h-96 bg-gray-100 rounded-lg">
-              <div className="text-center">
-                <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                  <svg className="w-8 h-8 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">Interactive World Map</h3>
-                <p className="text-gray-600 mb-4">
-                  This will display a geographic visualization of user locations with color-coded regions.
-                </p>
-                <div className="bg-blue-50 rounded-lg p-4 max-w-md mx-auto">
-                  <h4 className="font-medium text-blue-900 mb-2">Map Features:</h4>
-                  <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Color scale legend (0.0 to 60)</li>
-                    <li>• Countries shaded by user volume</li>
-                    <li>• Interactive tooltips</li>
-                    <li>• Responsive zoom controls</li>
-                  </ul>
-                </div>
-              </div>
-            </div>
-            
-            {/* Legend */}
-            <div className="mt-6 flex justify-end">
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="text-sm font-medium text-gray-900 mb-2">User Density</h4>
-                <div className="flex items-center space-x-2">
-                  <span className="text-xs text-gray-600">0</span>
-                  <div className="flex space-x-1">
-                    {[...Array(5)].map((_, i) => (
-                      <div 
-                        key={i}
-                        className="w-4 h-4 rounded-sm"
-                        style={{ 
-                          backgroundColor: `rgba(59, 130, 246, ${0.2 + (i * 0.2)})` 
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-xs text-gray-600">60+</span>
-                </div>
-              </div>
-            </div>
+
+          <div
+            className="bg-white rounded-lg shadow-sm border p-6"
+            style={{ height: "75vh" }}
+          >
+            {loading ? (
+              <p>Loading...</p>
+            ) : (
+              <ResponsiveChoropleth
+                data={chartData}
+                features={geoData.features}
+                margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
+                domain={[0, Math.max(...chartData.map((d) => d.value)) || 100]}
+                unknownColor="#eeeeee"
+                label="properties.name"
+                valueFormat=".0f"
+                projectionScale={120}
+                projectionTranslation={[0.5, 0.6]}
+                projectionRotation={[0, 0, 0]}
+                borderWidth={0.5}
+                borderColor="#333333"
+                legends={[
+                  {
+                    anchor: "bottom-left",
+                    direction: "column",
+                    justify: true,
+                    translateX: 20,
+                    translateY: -60,
+                    itemsSpacing: 0,
+                    itemWidth: 94,
+                    itemHeight: 18,
+                    itemDirection: "left-to-right",
+                    itemTextColor: "#555",
+                    itemOpacity: 0.85,
+                    symbolSize: 18,
+                  },
+                ]}
+              />
+            )}
           </div>
         </main>
       </div>

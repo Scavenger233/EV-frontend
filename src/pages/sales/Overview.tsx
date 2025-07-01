@@ -3,7 +3,6 @@ import Header from "@/components/Header";
 import Sidebar from "@/components/Sidebar";
 import OverviewChart from "@/components/charts/OverviewChart";
 import { Button, Dropdown } from "react-bootstrap";
-import "bootstrap/dist/css/bootstrap.min.css";
 
 const Overview = () => {
   const [view, setView] = useState("sales"); // Default view is sales
